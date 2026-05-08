@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>النظام الخبير للفقه المقارن</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold:       #c9a84c;
+    --gold-light: #e8c97a;
+    --gold-dim:   #7a5f2a;
+    --ink:        #1a1610;
+    --ink-mid:    #2e2720;
+    --parchment:  #f5efe0;
+    --cream:      #faf6ed;
+    --sage:       #3d5a4a;
+    --sage-light: #5a7a66;
+    --red-fiqh:   #8b2020;
+    --border:     rgba(201,168,76,0.25);
+    --shadow:     0 4px 32px rgba(26,22,16,0.18);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--ink);
+    color: var(--parchment);
+    font-family: 'Cairo', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── خلفية هندسية ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg,   transparent, transparent 59px, rgba(201,168,76,0.04) 60px),
+      repeating-linear-gradient(90deg,  transparent, transparent 59px, rgba(201,168,76,0.04) 60px);
+    pointer-events: none; z-index: 0;
+  }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 0 1.5rem; position: relative; z-index: 1; }
+
+  /* ── الرأس ── */
+  header {
+    text-align: center;
+    padding: 3rem 0 2rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2.5rem;
+  }
+
+  .logo-line {
+    display: flex; align-items: center; justify-content: center;
+    gap: 1rem; margin-bottom: 0.75rem;
+  }
+
+  .logo-ornament {
+    width: 48px; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold));
+  }
+  .logo-ornament.flip { background: linear-gradient(90deg, var(--gold), transparent); }
+
+  .logo-icon {
+    width: 44px; height: 44px; border: 1.5px solid var(--gold);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-family: 'Amiri', serif; font-size: 20px; color: var(--gold);
+  }
+
+  h1 {
+    font-family: 'Amiri', serif;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    color: var(--gold-light);
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+  }
+
+  .subtitle {
+    font-size: 0.85rem; color: rgba(245,239,224,0.5);
+    margin-top: 0.4rem; letter-spacing: 0.08em;
+  }
+
+  /* ── صندوق السؤال ── */
+  .question-panel {
+    background: rgba(245,239,224,0.04);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .panel-label {
+    font-size: 0.75rem; font-weight: 600; letter-spacing: 0.12em;
+    color: var(--gold-dim); text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  textarea {
+    width: 100%; background: rgba(26,22,16,0.6);
+    border: 1px solid var(--border); border-radius: 8px;
+    color: var(--parchment); font-family: 'Cairo', sans-serif;
+    font-size: 1rem; padding: 0.9rem 1rem; resize: none;
+    min-height: 90px; line-height: 1.7; outline: none;
+    transition: border-color 0.2s;
+  }
+  textarea:focus { border-color: var(--gold); }
+  textarea::placeholder { color: rgba(245,239,224,0.25); }
+
+  /* ── أمثلة أسئلة ── */
+  .examples {
+    display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.9rem;
+  }
+
+  .example-btn {
+    background: rgba(201,168,76,0.08);
+    border: 1px solid rgba(201,168,76,0.2);
+    color: rgba(245,239,224,0.65); font-family: 'Cairo', sans-serif;
+    font-size: 0.78rem; padding: 0.35rem 0.8rem;
+    border-radius: 20px; cursor: pointer; transition: all 0.2s;
+  }
+  .example-btn:hover {
+    background: rgba(201,168,76,0.15); color: var(--gold-light);
+    border-color: var(--gold);
+  }
+
+  /* ── خيارات المذهب ── */
+  .madhab-row {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    margin-top: 1rem; align-items: center;
+  }
+
+  .madhab-label {
+    font-size: 0.78rem; color: rgba(245,239,224,0.45);
+    margin-left: 0.25rem;
+  }
+
+  .madhab-btn {
+    background: transparent;
+    border: 1px solid rgba(201,168,76,0.2);
+    color: rgba(245,239,224,0.5); font-family: 'Cairo', sans-serif;
+    font-size: 0.78rem; padding: 0.3rem 0.75rem;
+    border-radius: 4px; cursor: pointer; transition: all 0.2s;
+  }
+  .madhab-btn:hover, .madhab-btn.active {
+    background: rgba(201,168,76,0.12);
+    color: var(--gold-light); border-color: var(--gold);
+  }
+
+  /* ── زر البحث ── */
+  .search-btn {
+    width: 100%; margin-top: 1rem;
+    background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+    border: none; border-radius: 8px; color: var(--ink);
+    font-family: 'Cairo', sans-serif; font-size: 1rem; font-weight: 700;
+    padding: 0.85rem; cursor: pointer; letter-spacing: 0.05em;
+    transition: opacity 0.2s, transform 0.15s;
+  }
+  .search-btn:hover   { opacity: 0.9; }
+  .search-btn:active  { transform: scale(0.99); }
+  .search-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── شريط التقدم ── */
+  .progress-bar {
+    height: 2px; background: var(--border);
+    border-radius: 2px; margin-top: 0.75rem; overflow: hidden;
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .progress-bar.active { opacity: 1; }
+  .progress-fill {
+    height: 100%; width: 0;
+    background: linear-gradient(90deg, var(--gold-dim), var(--gold-light));
+    border-radius: 2px; transition: width 0.4s ease;
+  }
+
+  /* ── النتائج ── */
+  #results { display: none; }
+  #results.visible { display: block; animation: fadeUp 0.5s ease; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── بطاقة المسألة ── */
+  .masala-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 1rem; margin-bottom: 1.5rem;
+    padding-bottom: 1.2rem; border-bottom: 1px solid var(--border);
+  }
+
+  .masala-title {
+    font-family: 'Amiri', serif; font-size: 1.5rem;
+    color: var(--gold-light); line-height: 1.4;
+  }
+
+  .masala-meta { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.4rem; }
+
+  .tag {
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em;
+    padding: 0.25rem 0.65rem; border-radius: 3px;
+  }
+  .tag-cat  { background: rgba(61,90,74,0.4);  color: #7fbd95; border: 1px solid rgba(90,122,102,0.35); }
+  .tag-ijma { background: rgba(61,90,74,0.5);  color: #7fbd95; border: 1px solid rgba(90,122,102,0.5); }
+  .tag-khilaf { background: rgba(139,32,32,0.25); color: #d47a7a; border: 1px solid rgba(139,32,32,0.35); }
+  .tag-naz  { background: rgba(110,80,20,0.3);  color: var(--gold-light); border: 1px solid rgba(201,168,76,0.25); }
+
+  .match-score {
+    text-align: center; flex-shrink: 0;
+  }
+  .score-circle {
+    width: 62px; height: 62px; border-radius: 50%;
+    border: 2px solid var(--gold-dim); display: flex;
+    flex-direction: column; align-items: center; justify-content: center;
+  }
+  .score-num  { font-size: 1.1rem; font-weight: 700; color: var(--gold); line-height: 1; }
+  .score-lbl  { font-size: 0.6rem; color: rgba(245,239,224,0.4); margin-top: 1px; }
+
+  /* ── شبكة المذاهب ── */
+  .madhabs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem; margin-bottom: 1.5rem;
+  }
+
+  .madhab-card {
+    background: rgba(245,239,224,0.03);
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 1.1rem; transition: border-color 0.2s, background 0.2s;
+    cursor: default;
+  }
+  .madhab-card:hover {
+    background: rgba(245,239,224,0.055);
+    border-color: rgba(201,168,76,0.45);
+  }
+  .madhab-card.highlighted {
+    border-color: var(--gold);
+    background: rgba(201,168,76,0.07);
+  }
+
+  .madhab-name {
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em;
+    color: var(--gold); margin-bottom: 0.6rem;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+  .madhab-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--gold); flex-shrink: 0;
+  }
+
+  .hukm {
+    font-family: 'Amiri', serif; font-size: 0.97rem;
+    color: var(--parchment); line-height: 1.6; margin-bottom: 0.7rem;
+  }
+
+  .daleel-row {
+    font-size: 0.75rem; color: rgba(245,239,224,0.45);
+    border-top: 1px solid rgba(201,168,76,0.1);
+    padding-top: 0.6rem; margin-top: 0.4rem; line-height: 1.5;
+  }
+  .daleel-row span { color: rgba(245,239,224,0.6); }
+
+  /* ── قسم الخلاصة ── */
+  .conclusion {
+    background: rgba(61,90,74,0.15);
+    border: 1px solid rgba(90,122,102,0.3);
+    border-right: 3px solid var(--sage-light);
+    border-radius: 8px; padding: 1.1rem 1.3rem;
+    margin-bottom: 1.2rem;
+  }
+  .conclusion-lbl {
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em;
+    color: var(--sage-light); margin-bottom: 0.4rem;
+  }
+  .conclusion-text {
+    font-family: 'Amiri', serif; font-size: 1.05rem;
+    color: var(--parchment); line-height: 1.7;
+  }
+
+  /* ── أسباب الخلاف ── */
+  .khilaf-box {
+    background: rgba(139,32,32,0.08);
+    border: 1px solid rgba(139,32,32,0.2);
+    border-radius: 8px; padding: 1rem 1.2rem;
+    margin-bottom: 1.2rem;
+  }
+  .khilaf-lbl {
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em;
+    color: #c07070; margin-bottom: 0.5rem;
+  }
+  .khilaf-item {
+    font-size: 0.85rem; color: rgba(245,239,224,0.6);
+    padding: 0.2rem 0; display: flex; gap: 0.5rem; align-items: flex-start;
+  }
+  .khilaf-item::before { content: '•'; color: #c07070; flex-shrink: 0; }
+
+  /* ── تنبيه ── */
+  .fatwa-note {
+    background: rgba(201,168,76,0.06);
+    border: 1px solid rgba(201,168,76,0.18);
+    border-radius: 8px; padding: 0.8rem 1rem;
+    font-size: 0.8rem; color: rgba(245,239,224,0.45);
+    display: flex; gap: 0.6rem; align-items: flex-start;
+  }
+  .fatwa-note::before { content: '⚠'; color: var(--gold-dim); flex-shrink: 0; }
+
+  /* ── رسالة عدم الوجود ── */
+  .not-found {
+    text-align: center; padding: 3rem 1rem;
+    color: rgba(245,239,224,0.35); font-size: 0.9rem;
+  }
+  .not-found .nf-icon {
+    font-size: 2.5rem; margin-bottom: 0.8rem; opacity: 0.3;
+  }
+
+  /* ── فاصل ── */
+  hr.ornament {
+    border: none; text-align: center; margin: 2rem 0;
+    color: var(--gold-dim); font-size: 0.85rem; opacity: 0.5;
+  }
+  hr.ornament::before { content: '─── ✦ ───'; }
+
+  /* ── تذييل ── */
+  footer {
+    text-align: center; padding: 2rem 0;
+    border-top: 1px solid var(--border);
+    font-size: 0.75rem; color: rgba(245,239,224,0.2);
+    margin-top: 3rem;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- الرأس -->
+  <header>
+    <div class="logo-line">
+      <div class="logo-ornament"></div>
+      <div class="logo-icon">ف</div>
+      <div class="logo-ornament flip"></div>
+    </div>
+    <h1>النظام الخبير للفقه المقارن</h1>
+    <p class="subtitle">المذاهب الأربعة · الأدلة والمصادر · الترجيح العلمي</p>
+  </header>
+
+  <!-- لوحة السؤال -->
+  <div class="question-panel">
+    <div class="panel-label">أدخل سؤالك الفقهي</div>
+    <textarea id="questionInput"
+      placeholder="مثال: ما حكم الجمع بين الصلاتين في السفر؟" rows="3"></textarea>
+
+    <div class="examples">
+      <button class="example-btn" onclick="setQ('ما حكم الجمع بين الصلاتين في السفر؟')">الجمع في السفر</button>
+      <button class="example-btn" onclick="setQ('كم نصاب زكاة الذهب بالغرام؟')">نصاب زكاة الذهب</button>
+      <button class="example-btn" onclick="setQ('ما حكم الصلاة خلف الإمام الفاسق؟')">الصلاة خلف الفاسق</button>
+      <button class="example-btn" onclick="setQ('هل يجوز شراء الأسهم في البورصة؟')">حكم الأسهم</button>
+    </div>
+
+    <div class="madhab-row">
+      <span class="madhab-label">تصفية بالمذهب:</span>
+      <button class="madhab-btn active" onclick="setMadhab(null, this)">الكل</button>
+      <button class="madhab-btn" onclick="setMadhab('hanafi',  this)">الحنفي</button>
+      <button class="madhab-btn" onclick="setMadhab('maliki',  this)">المالكي</button>
+      <button class="madhab-btn" onclick="setMadhab('shafii',  this)">الشافعي</button>
+      <button class="madhab-btn" onclick="setMadhab('hanbali', this)">الحنبلي</button>
+    </div>
+
+    <button class="search-btn" id="searchBtn" onclick="search()">
+      🔍 &nbsp; بحث في قاعدة المعرفة الفقهية
+    </button>
+
+    <div class="progress-bar" id="progressBar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+
+  <!-- النتائج -->
+  <div id="results"></div>
+
+  <footer>نظام خبير أكاديمي · ماستر الشريعة الإسلامية · الآراء الواردة للدراسة المقارنة فقط</footer>
+</div>
+
+<script>
+// ==========================================
+// قاعدة البيانات الفقهية
+// ==========================================
+const MASAIL = [
+  {
+    id: "M001", title: "حكم الجمع بين الصلاتين",
+    category: "عبادات", subcategory: "الصلاة",
+    keywords: ["جمع","صلاة","سفر","مرض","تقديم","تأخير","مغرب","عشاء","ظهر","عصر"],
+    madhabs: {
+      hanafi:  {hukm:"لا يجوز إلا للحاج في عرفة ومزدلفة",            daleel:"حديث: صلوا كما رأيتموني أصلي", source:"الهداية ج١ ص٨٥"},
+      maliki:  {hukm:"يجوز للمسافر والمريض وفي المطر",                daleel:"حديث معاذ في الجمع",           source:"المدونة ج١ ص١٠٢"},
+      shafii:  {hukm:"يجوز في السفر والمرض والمطر والخوف",            daleel:"حديث ابن عباس في صحيح مسلم",  source:"المجموع ج٤ ص٣٧٢"},
+      hanbali: {hukm:"يجوز بأسباب متعددة منها السفر والشغل الشديد",   daleel:"حديث ابن عباس: جمع من غير خوف",source:"المغني ج٢ ص١٢٤"},
+    },
+    khilaf: "خلاف حقيقي", rajih: "الجواز في السفر والمرض وهو قول الجمهور",
+    ijmaa: false, type: "عبادة",
+    asbaab: ["اختلاف في تأويل الأحاديث","تعارض ظاهر بين النصوص"]
+  },
+  {
+    id: "M002", title: "نصاب زكاة الذهب",
+    category: "عبادات", subcategory: "الزكاة",
+    keywords: ["زكاة","ذهب","نصاب","مثقال","مقدار","غرام","خمسة وثمانون"],
+    madhabs: {
+      hanafi:  {hukm:"عشرون مثقالاً (٨٥ غراماً تقريباً)", daleel:"حديث علي رضي الله عنه", source:"بدائع الصنائع ج٢ ص٩٥"},
+      maliki:  {hukm:"عشرون مثقالاً",                     daleel:"الإجماع والأثر",          source:"الكافي لابن عبد البر"},
+      shafii:  {hukm:"عشرون مثقالاً",                     daleel:"الإجماع",                source:"الأم للشافعي ج٢"},
+      hanbali: {hukm:"عشرون مثقالاً",                     daleel:"الإجماع والأثر",          source:"المغني ج٣ ص٦"},
+    },
+    khilaf: "إجماع", rajih: "عشرون مثقالاً — ٨٥ غراماً من الذهب الخالص",
+    ijmaa: true, type: "عبادة", asbaab: []
+  },
+  {
+    id: "M003", title: "الصلاة خلف الإمام الفاسق",
+    category: "عبادات", subcategory: "الصلاة",
+    keywords: ["إمام","فاسق","صلاة","جماعة","اقتداء","خلف","صحة"],
+    madhabs: {
+      hanafi:  {hukm:"تصح مع الكراهة التحريمية",       daleel:"حديث: صلوا خلف كل بر وفاجر", source:"الهداية ج١ ص٥٦"},
+      maliki:  {hukm:"تصح مع الكراهة",                 daleel:"عمل الصحابة",                 source:"المدونة ج١ ص٨٢"},
+      shafii:  {hukm:"تصح مع الكراهة",                 daleel:"إجماع الصحابة",               source:"المجموع ج٤ ص٢٥٥"},
+      hanbali: {hukm:"لا تصح إذا كان فسقه ظاهراً",    daleel:"شرط العدالة في الإمام",       source:"المغني ج٢ ص٧"},
+    },
+    khilaf: "خلاف حقيقي", rajih: "الصحة مع الكراهة عند الجمهور (حنفي، مالكي، شافعي)",
+    ijmaa: false, type: "عبادة",
+    asbaab: ["الاختلاف في شرط العدالة في الإمام","تعارض الأحاديث الواردة"]
+  },
+  {
+    id: "M004", title: "حكم بيع الأسهم في البورصة",
+    category: "قضايا معاصرة", subcategory: "المعاملات المالية",
+    keywords: ["أسهم","بورصة","بيع","شراء","استثمار","شركة","سهم","سوق مالي"],
+    madhabs: {
+      hanafi:  {hukm:"يجوز إن خلت الشركة من الربا والمحرمات",       daleel:"القياس على بيع الحصص في الشركات", source:"مجمع الفقه الإسلامي ق٧"},
+      maliki:  {hukm:"يجوز بشرط طهارة نشاط الشركة",                  daleel:"الأصل في المعاملات الإباحة",      source:"مجلة مجمع الفقه ع٧"},
+      shafii:  {hukm:"يجوز في شركات النشاط الحلال",                   daleel:"الإذن الشرعي بالمشاركة",         source:"قرار مجمع رقم ٦٣"},
+      hanbali: {hukm:"يجوز إن لم يزد الدين على ثلث أصول الشركة",     daleel:"شرط الخلو من الربا والغرر",      source:"فتاوى ابن عثيمين ج١٨"},
+    },
+    khilaf: "خلاف نسبي", rajih: "الجواز بشروط — قرار مجمع الفقه الإسلامي الدولي",
+    ijmaa: false, type: "نازلة معاصرة",
+    asbaab: ["مسألة مستحدثة لا نص فيها","الاختلاف في تطبيق القواعد على الواقع المعاصر"]
+  },
+];
+
+// ==========================================
+// منطق البحث والمطابقة
+// ==========================================
+
+const STOPWORDS = new Set(["ما","هل","كيف","من","في","على","عن","إلى","هذا","هذه","حكم","أو","هو","هي","ان","إن","لا","نعم"]);
+
+function tokenize(text) {
+  return text.replace(/[،؟!.,]/g,'').split(/\s+/)
+    .map(w => w.replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي'))
+    .filter(w => w.length > 1 && !STOPWORDS.has(w));
+}
+
+function score(tokens, masala) {
+  const mkws = masala.keywords.map(k => k.replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي'));
+  const title = masala.title.replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي');
+  let s = 0;
+  for (const t of tokens) {
+    if (mkws.some(k => k === t))                      s += 1.0;
+    else if (mkws.some(k => k.includes(t) || t.includes(k))) s += 0.55;
+    if (title.includes(t))                             s += 0.7;
+  }
+  const max = tokens.length * 1.7;
+  return max > 0 ? Math.min(s / max, 1) : 0;
+}
+
+function search(tokens, madhab) {
+  return MASAIL
+    .map(m => ({ masala: m, sc: score(tokens, m) }))
+    .filter(x => x.sc > 0.08)
+    .sort((a,b) => b.sc - a.sc)[0] || null;
+}
+
+// ==========================================
+// حالة الواجهة
+// ==========================================
+let activeMadhab = null;
+
+function setQ(q) {
+  document.getElementById('questionInput').value = q;
+  document.getElementById('questionInput').focus();
+}
+
+function setMadhab(m, btn) {
+  activeMadhab = m;
+  document.querySelectorAll('.madhab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ==========================================
+// البحث الرئيسي
+// ==========================================
+async function search() {
+  const q = document.getElementById('questionInput').value.trim();
+  if (!q) return;
+
+  const btn      = document.getElementById('searchBtn');
+  const bar      = document.getElementById('progressBar');
+  const fill     = document.getElementById('progressFill');
+  const results  = document.getElementById('results');
+
+  btn.disabled = true;
+  btn.textContent = '⏳   جارٍ البحث...';
+  bar.classList.add('active');
+  results.className = '';
+  results.innerHTML = '';
+
+  // محاكاة تقدم
+  let p = 0;
+  const interval = setInterval(() => {
+    p = Math.min(p + Math.random() * 18, 90);
+    fill.style.width = p + '%';
+  }, 120);
+
+  await new Promise(r => setTimeout(r, 900));
+  clearInterval(interval);
+  fill.style.width = '100%';
+  await new Promise(r => setTimeout(r, 200));
+
+  const tokens = tokenize(q);
+  const hit = search(tokens, activeMadhab);
+
+  bar.classList.remove('active');
+  fill.style.width = '0';
+  btn.disabled = false;
+  btn.textContent = '🔍   بحث في قاعدة المعرفة الفقهية';
+
+  results.innerHTML = hit ? renderResult(hit, q) : renderNotFound();
+  results.classList.add('visible');
+  results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ==========================================
+// رسم النتيجة
+// ==========================================
+const MADHAB_NAMES = { hanafi:'الحنفي', maliki:'المالكي', shafii:'الشافعي', hanbali:'الحنبلي' };
+
+function tagClass(m) {
+  return m.ijmaa ? 'tag-ijma' : (m.type === 'نازلة معاصرة' ? 'tag-naz' : 'tag-khilaf');
+}
+
+function renderResult({ masala: m, sc }, question) {
+  const pct    = Math.round(Math.min(sc * 1.35, 1) * 100);
+  const madhabsToShow = activeMadhab
+    ? Object.entries(m.madhabs).filter(([k]) => k === activeMadhab)
+    : Object.entries(m.madhabs);
+
+  const cardsHtml = madhabsToShow.map(([key, d]) => `
+    <div class="madhab-card ${activeMadhab === key ? 'highlighted' : ''}">
+      <div class="madhab-name"><span class="madhab-dot"></span>${MADHAB_NAMES[key]}</div>
+      <div class="hukm">${d.hukm}</div>
+      <div class="daleel-row">
+        <span>الدليل:</span> ${d.daleel}<br>
+        <span>المصدر:</span> ${d.source}
+      </div>
+    </div>
+  `).join('');
+
+  const asbaabHtml = m.asbaab?.length ? `
+    <div class="khilaf-box">
+      <div class="khilaf-lbl">أسباب الخلاف</div>
+      ${m.asbaab.map(s => `<div class="khilaf-item">${s}</div>`).join('')}
+    </div>` : '';
+
+  return `
+    <div class="masala-header">
+      <div>
+        <div class="masala-title">${m.title}</div>
+        <div class="masala-meta">
+          <span class="tag tag-cat">${m.category} › ${m.subcategory}</span>
+          <span class="tag ${tagClass(m)}">${m.ijmaa ? '✓ إجماع' : m.khilaf}</span>
+          ${m.type !== 'عبادة' ? `<span class="tag tag-naz">${m.type}</span>` : ''}
+        </div>
+      </div>
+      <div class="match-score">
+        <div class="score-circle">
+          <div class="score-num">${pct}%</div>
+          <div class="score-lbl">تطابق</div>
+        </div>
+      </div>
+    </div>
+
+    ${m.ijmaa ? `<div class="conclusion" style="margin-bottom:1rem">
+      <div class="conclusion-lbl">✅ مسألة إجماعية</div>
+      <div class="conclusion-text">اتفق الفقهاء على هذه المسألة ولا خلاف فيها بين المذاهب.</div>
+    </div>` : ''}
+
+    <div class="madhabs-grid">${cardsHtml}</div>
+
+    ${asbaabHtml}
+
+    <div class="conclusion">
+      <div class="conclusion-lbl">الرأي الراجح</div>
+      <div class="conclusion-text">${m.rajih}</div>
+    </div>
+
+    <div class="fatwa-note">
+      هذا تحليل أكاديمي مقارن للدراسة والبحث العلمي. للفتوى الشخصية يرجى مراجعة عالم متخصص أو دار الإفتاء المختصة.
+    </div>
+  `;
+}
+
+function renderNotFound() {
+  return `<div class="not-found">
+    <div class="nf-icon">🔍</div>
+    <p>لم يُعثر على مسألة مطابقة في قاعدة البيانات الحالية.</p>
+    <p style="margin-top:.5rem;font-size:.8rem;opacity:.6">حاول إعادة صياغة السؤال أو استخدام مصطلحات فقهية أدق.</p>
+  </div>`;
+}
+
+// إرسال بضغط Enter
+document.getElementById('questionInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); search(); }
+});
+</script>
+</body>
+</html>
